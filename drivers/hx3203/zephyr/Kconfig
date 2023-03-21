@@ -1,0 +1,2 @@
+config HX3203
+	bool "Enable support for the demonstration out of tree driver"

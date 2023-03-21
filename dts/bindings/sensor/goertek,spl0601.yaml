@@ -1,0 +1,9 @@
+# Copyright (c) 2020 Richard Osterloh
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+    The SPL06-001 is a miniaturized Digital Barometric Air Pressure Sensor. https://datasheet.lcsc.com/lcsc/2101201914_Goertek-SPL06-001_C2684428.pdf
+
+compatible: "goertek,spl0601"
+
+include: i2c-device.yaml

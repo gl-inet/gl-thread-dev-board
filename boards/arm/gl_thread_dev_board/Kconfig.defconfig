@@ -1,0 +1,9 @@
+if BOARD_GL_THREAD_DEV_BOARD
+
+config BOARD
+	default "gl-thread-dev-board"
+
+config BT_CTLR
+	default BT
+
+endif # BOARD_GL_THREAD_DEV_BOARD

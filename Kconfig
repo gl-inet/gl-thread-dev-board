@@ -1,0 +1,53 @@
+#
+# Copyright (c) 2022 GL.iNET
+#
+#
+
+config SPI
+	default y
+    
+menu "Zephyr Kernel"
+source "Kconfig.zephyr"
+endmenu
+
+module = GL_THREAD_DEV_BOARD
+module-str = main
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+module = GL_SRP_UTILS
+module-str = GL SRP utilities
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+module = GL_COAP_CLIENT
+module-str = GL COAP CLIENT
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+module = GL_COAP_UTILS
+module-str = GL COAP UTILS
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+module = GL_SMP_UDP
+module-str = GL SMP UDP
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+module = GL_CJSON_UTILS
+module-str = GL CJSON utilities
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+module = GL_OT_API
+module-str = GL OT API
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+module = GL_SENSOR
+module-str = GL SENSOR API
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+config SW_VERSION
+    string
+    prompt "SW VERSION"
+	default "0.0.1"
+
+config SENSOR_VALUE_AUTO_PRINT
+	bool
+    prompt "Sensor value auto print"
+	default n

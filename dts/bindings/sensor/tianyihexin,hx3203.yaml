@@ -1,0 +1,59 @@
+# Copyright (c) 2020 Richard Osterloh
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+    Ambient light sensor. http://www.tianyihexin.com/chanpin/show.asp?id=14
+
+compatible: "tianyihexin,hx3203"
+
+include: i2c-device.yaml
+
+properties:
+    int-gpios:
+      type: phandle-array
+      required: false
+      description: |
+        The INT pin signals that a programmable interrupt function
+        for ALS and PS with upper and lower thresholds has been
+        triggered. The sensor generates an active-low level signal
+        which remains asserted until the data is read.
+
+    led-current:
+      type: int
+      required: false
+      default: 50
+      # default of 50 mA is POR (0b000) for PS_MS[LED_I] register
+      description: LED current in mA
+      enum:
+        - 50
+        - 75
+        - 100
+        - 120
+        - 140
+        - 160
+        - 180
+        - 200
+
+    led-duty-cycle:
+      type: int
+      required: false
+      default: 40
+      # default of 40 Hz is POR (0b00) for PS_CONF1[PS_Duty] register
+      description: LED duty cycle in Hz
+      enum:
+        - 40
+        - 80
+        - 160
+        - 320
+
+    als-it:
+      type: int
+      required: false
+      default: 80
+      # default of 80 is POR (0b00) for ALS_CONF[ALS_IT] register
+      description: ALS integration time in ms
+      enum:
+        - 80
+        - 160
+        - 320
+        - 640
