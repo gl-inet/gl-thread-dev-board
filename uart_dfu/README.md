@@ -36,7 +36,7 @@ The port number of my device is **COM3** currently.
     mcumgr.exe --conntype serial --connstring=your_board_port,baud=460800 image list
     ```
 
-    ![Untitled](./img/Untitled 1.png)
+    ![1](./img/1.png)
 
 ### **Step 3: Upload the Firmware**
 
@@ -44,7 +44,7 @@ The port number of my device is **COM3** currently.
 mcumgr.exe --conntype serial --connstring=your_board_port,baud=460800 image upload new_firmware_path
 ```
 
-![Untitled](./img/Untitled 2.png)
+![2](./img/2.png)
 
 ### **Step 4: Check the Uploaded Firmware Information**
 
@@ -52,7 +52,7 @@ mcumgr.exe --conntype serial --connstring=your_board_port,baud=460800 image uplo
 mcumgr.exe --conntype serial --connstring=your_board_port,baud=460800 image list
 ```
 
-![Untitled](./img/Untitled 3.png)
+![3](./img/3.png)
 
 ### **Step 5: Set the Firmware for next boot**
 
@@ -60,7 +60,7 @@ mcumgr.exe --conntype serial --connstring=your_board_port,baud=460800 image list
 mcumgr.exe --conntype serial --connstring=your_board_port,baud=460800 image test new_firmware_hash
 ```
 
-![Untitled](./img/Untitled 4.png)
+![4](./img/4.png)
 
 Make sure the flags of the new firmware is pending.
 
@@ -80,4 +80,4 @@ mcumgr.exe --conntype serial --connstring=your_board_port,baud=460800 image list
 
 Check that the upgrade has been completed to version 1.1.9.
 
-![Untitled](./img/Untitled 5.png)
+![5](./img/5.png)
