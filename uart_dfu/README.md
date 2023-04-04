@@ -5,6 +5,8 @@ Upgrade gl_thread_dev_board firmware based on UART.
 ## **Upgrade Preparation**
 
 1. Firmware: GL-Thread-Dev-Board-FTD-OTA-v1.1.9.bin
+
+    *You can find our release firmware [here](../release)*
 2. Upgrade program: mcumgr.exe
 3. Windows PC
 

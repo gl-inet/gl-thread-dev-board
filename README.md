@@ -22,20 +22,20 @@ TBD currently implements the following functions:
 
 ## HW Info
 
-| HW part                              | Info                          |
-| ------------------------------------ | ----------------------------- |
-| MCU                                  | NRF52840                      |
-| Temperature and humidity sensor      | SHTC3                         |
-| Light sensor                         | HX3203                        |
-| Air pressure and temperature sensors | SPL0601                       |
-| Pyroelectric infrared sensor         | XYC-PIR203B-S0                |
-| Rotary encoder                       | EC1108                        |
-| RGB LED (X2)                         | LC8812B                       |
-| SW define button                     | x2                            |
-| HW reset button                      | x1                            |
-| SW define LED                        | x2                            |
-| HW power LED                         | x1                            |
-| Power supply                         | Battery base(CR2032) / Type-C |
+| HW part                             | Info                          |
+| ----------------------------------- | ----------------------------- |
+| MCU                                 | NRF52840                      |
+| Temperature and humidity sensor     | SHTC3                         |
+| Light sensor                        | HX3203                        |
+| Air pressure and temperature sensor | SPL0601                       |
+| Pyroelectric infrared sensor        | XYC-PIR203B-S0                |
+| Rotary encoder                      | EC1108                        |
+| RGB LED (X2)                        | LC8812B                       |
+| SW define button                    | x2                            |
+| HW reset button                     | x1                            |
+| SW define LED                       | x2                            |
+| HW power LED                        | x1                            |
+| Power supply                        | Battery base(CR2032) / Type-C |
 
 ## Pinout
 
