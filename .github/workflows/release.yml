@@ -36,4 +36,6 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           draft: true
           prerelease: false
-          files: README.md
+          files: |
+            build/zephyr/app_update.bin
+            build/zephyr/zephyr.bin
