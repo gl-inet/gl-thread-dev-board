@@ -30,8 +30,8 @@ jobs:
 
           cd glinet/gl-dev-board-over-thread
           west build -b gl_thread_dev_board
-          cp build/zephyr/app_update.bin ../
-          cp build/zephyr/zephyr.bin ../
+          cp build/zephyr/app_update.bin ../../../app_update.bin
+          cp build/zephyr/zephyr.bin ../../../zephyr.bin
 
       - uses: marvinpinto/action-automatic-releases@latest
         with:
@@ -39,7 +39,5 @@ jobs:
           draft: true
           prerelease: false
           files: |
-            release/1.1.9/GL-Thread-Dev-Board-MTD-OTA-v1.1.9.bin
-            release/1.1.9/GL-Thread-Dev-Board-FTD-OTA-v1.1.9.bin
             app_update.bin
             zephyr.bin
