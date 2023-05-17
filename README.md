@@ -1,3 +1,5 @@
+[TOC]
+
 # GL Thread Dev Board
 
 Thread Dev Board (TBD) is the end device part of the thread kit developed by GL-iNet. Developers can test thread-related features and develop their own features based on the TBD.
@@ -43,33 +45,31 @@ TBD currently implements the following functions:
 
 ## SW Development Environment
 
-#### 1.Download gl-nrf-sdk (branch:v2.0-glinet) 
+### 1.Download gl-nrf-sdk (branch:v2.0-glinet) 
 
 ```
 west init -m https://github.com/gl-inet/gl-nrf-sdk --mr v2.2.0-glinet gl-nrf-sdk
 ```
 
-#### 2.Update download dependency
+### 2.Update download dependency
 
 ```
 cd gl-nrf-sdk/
-west update
+west updat
 ```
 
-#### 3.Examples
-
-##### 3.1 gl-dev-board-over-thread demo 
+### 3.Buiding gl-dev-board-over-thread demo 
 
 ​	gl-dev-board-over-thread demo is used as an example.
 
-###### （1）buiding
+#### (1)buiding
 
 ```
 cd glinet/gl-dev-board-over-thread
 west build -b gl_nrf52840_dev_board 
 ```
 
-######    (2) Flashing
+####    (2)Flashing
 
 ​	GL Thread DEV Board is connected to ubuntu by J-LINK burner, and flashing the firmware to GL Thread DEV Board.
 
@@ -77,11 +77,11 @@ west build -b gl_nrf52840_dev_board
 west flash --erase
 ```
 
-######    (3) test
+####    (3)test
 
 ​	Reference https://docs.gl-inet.com/en/4/user_guide/gl-s200/gl_dev_board/ add TDB(GL Thread DEV Board) to the thread network.After successfully joining the network, you can view the collected data such as temperature reported by the OTB to gl-s200 on the web page, or run commands in the background of gl-s200 to control the OTB.
 
-Set LED switch
+##### Set LED switch
 
 Off
 
@@ -111,7 +111,7 @@ coap_cli -N -e "{\"cmd\":\"onoff\",\"obj\":\"all\",\"val\":2}" -m put coap://[fd
 {"err_code":0}
 ```
 
-Set LED color
+##### Set LED color
 
 Note: It is effective only when the LED is on
 
@@ -120,7 +120,7 @@ coap_cli -N -e "{\"cmd\":\"change_color\",\"obj\":\"all\",\"r\":230,\"g\":230,\"
 {"err_code":0}
 ```
 
-Set the GPIO level
+##### Set the GPIO level
 
 ```shell
 coap_cli -N -e "{\"cmd\":\"set_gpio\",\"obj\":\"0.15\",\"val\":false}" -m put coap://[fd11:22:0:0:26e6:c63b:4a02:49d6]/cmd
@@ -132,25 +132,25 @@ coap_cli -N -e "{\"cmd\":\"set_gpio\",\"obj\":\"0.15\",\"val\":true}" -m put coa
 {"err_code":0}
 ```
 
-Read the GPIO status
+##### Read the GPIO status
 
 ```shell
 root@GL-S200:~# coap_cli -N -e "{\"cmd\":\"get_gpio_status\"}" -m put coap://[fd11:22:0:0:12c7:ca49:90c5:d269]/cmd
 {"gpio_status":[{"obj":"0.15","val":0},{"obj":"0.16","val":0},{"obj":"0.17","val":0},{"obj":"0.20","val":0}],"err_code":0}
 ```
 
-Read LED status
+##### Read LED status
 
 ```shell
 root@GL-S200:~# coap_cli -N -e "{\"cmd\":\"get_led_status\"}" -m put coap://[fd11:22:0:0:12c7:ca49:90c5:d269]/cmd
 {"led_strip_status":[{"obj":"led_left","on_off":0,"r":0,"g":0,"b":0},{"obj":"led_left","on_off":0,"r":0,"g":0,"b":0}],"err_code":0}
 ```
 
-##### 3.2 cli demo 
+### 4.Buiding  other demo 
 
 ​	cli demo is used as an example.
 
-###### （1）buiding
+#### (1)buiding
 
 ​	Enter cli demo directory and building
 
@@ -177,7 +177,7 @@ sign the payload
 
 ```
 
-######   (2) Flashing	
+####   (2)Flashing	
 
 ​	GL Thread DEV Board is connected to ubuntu by J-LINK burner, and flashing the firmware to GL Thread DEV Board.
 
@@ -196,7 +196,7 @@ Applying pin reset.
 -- runners.nrfjprog: Board with serial number 59768885 flashed successfully.
 ```
 
-######    (3) test
+####    (3)test
 
 ​	Enter cli command in GL development board terminal to test.
 
