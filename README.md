@@ -1,4 +1,23 @@
-[TOC]
+- [GL Thread Dev Board](#gl-thread-dev-board)
+  - [HW Info](#hw-info)
+  - [Pinout](#pinout)
+  - [SW Development Environment](#sw-development-environment)
+    - [1.Download gl-nrf-sdk (branch:v2.0-glinet)](#1download-gl-nrf-sdk-branchv20-glinet)
+    - [2.Update download dependency](#2update-download-dependency)
+    - [3.Buiding gl-dev-board-over-thread demo](#3buiding-gl-dev-board-over-thread-demo)
+      - [(1)buiding](#1buiding)
+      - [(2)Flashing](#2flashing)
+      - [(3)test](#3test)
+        - [Set LED switch](#set-led-switch)
+        - [Set LED color](#set-led-color)
+        - [Set the GPIO level](#set-the-gpio-level)
+        - [Read the GPIO status](#read-the-gpio-status)
+        - [Read LED status](#read-led-status)
+    - [4.Buiding  other demo](#4buiding--other-demo)
+      - [(1)buiding](#1buiding-1)
+      - [(2)Flashing](#2flashing-1)
+      - [(3)test](#3test-1)
+
 
 # GL Thread Dev Board
 
@@ -55,7 +74,7 @@ west init -m https://github.com/gl-inet/gl-nrf-sdk --mr v2.2.0-glinet gl-nrf-sdk
 
 ```
 cd gl-nrf-sdk/
-west updat
+west update
 ```
 
 ### 3.Buiding gl-dev-board-over-thread demo 
