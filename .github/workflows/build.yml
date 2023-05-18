@@ -23,5 +23,5 @@ jobs:
           export GNUARMEMB_TOOLCHAIN_PATH=$PWD/gcc-arm-none-eabi-9-2019-q4-major
 
           cd glinet/gl-dev-board-over-thread
-          west build -b gl_thread_dev_board
+          west build -b gl_nrf52840_dev_board
 
