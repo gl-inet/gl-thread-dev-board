@@ -30,8 +30,9 @@ jobs:
 
           cd glinet/gl-dev-board-over-thread
           west build -b gl_nrf52840_dev_board
-          cp build/zephyr/app_update.bin ../../../app_update.bin
-          cp build/zephyr/zephyr.bin ../../../zephyr.bin
+          VERSION=$(cat prj.conf|grep CONFIG_SW_VERSION|awk -F '"' '{print $2}')
+          cp build/zephyr/app_update.bin ../../../GL-Thread-Dev-Board-MTD-OTA-v$VERSION.bin
+          cp build/zephyr/merged.hex ../../../GL-Thread-Dev-Board-MTD-JLINK-UPGRADE-v$VERSION.hex
 
       - uses: marvinpinto/action-automatic-releases@latest
         with:
@@ -39,5 +40,5 @@ jobs:
           draft: true
           prerelease: false
           files: |
-            app_update.bin
-            zephyr.bin
+            GL-Thread-Dev-Board*.bin
+            GL-Thread-Dev-Board*.hex

@@ -76,7 +76,6 @@ static uint32_t poll_period;
 static bool is_joined;
 static bool is_connected;
 static bool is_srp_client_running = false;
-static bool is_need_to_update_server_ipaddr = false;
 
 static struct k_work multicast_light_work;
 static struct k_work toggle_MTD_SED_work;
@@ -252,8 +251,6 @@ static int on_provisioning_reply(const struct coap_packet *response, struct coap
 
 	LOG_INF("Received peer address: %s", unique_local_addr_str);
 
-	is_need_to_update_server_ipaddr = false;
-
 	coap_client_send_status();
 
 exit:
@@ -280,7 +277,6 @@ static int on_send_trigger_reply(const struct coap_packet *response, struct coap
 	ARG_UNUSED(reply);
 	ARG_UNUSED(from);
 
-	is_need_to_update_server_ipaddr = false;
 	LOG_INF("Send 'trigger' done.");
 	return 0;
 }
@@ -299,11 +295,6 @@ void send_trigger_event_request(trigger_event_type_e event, char* obj, void* val
 	}
 	if (unique_local_addr.sin6_addr.s6_addr16[0] == 0) {
 		LOG_WRN("Peer address not set");
-		coap_client_send_provisioning_request();
-		return;
-	}
-	if (is_need_to_update_server_ipaddr) {
-		LOG_WRN("Peer address can not access");
 		coap_client_send_provisioning_request();
 		return;
 	}
@@ -345,7 +336,6 @@ void send_trigger_event_request(trigger_event_type_e event, char* obj, void* val
 
 	char* payload = cJSON_PrintUnformatted(root_obj);
 	LOG_INF("Send trigger ev: %s", payload);
-	is_need_to_update_server_ipaddr = true;
 	coap_send_request(COAP_METHOD_PUT, (const struct sockaddr *)&unique_local_addr,
 			  trigger_repo_option, payload, strlen(payload) + 1, on_send_trigger_reply);
 
@@ -395,7 +385,6 @@ static int on_send_status_reply(const struct coap_packet *response, struct coap_
 	ARG_UNUSED(reply);
 	ARG_UNUSED(from);
 
-	is_need_to_update_server_ipaddr = false;
 	LOG_INF("Send 'status' done.");
 	return 0;
 }
@@ -409,11 +398,6 @@ static void do_report_status_request(struct k_work *item)
 		return;
 	if (unique_local_addr.sin6_addr.s6_addr16[0] == 0) {
 		LOG_WRN("Peer address not set");
-		coap_client_send_provisioning_request();
-		return;
-	}
-	if (is_need_to_update_server_ipaddr) {
-		LOG_WRN("Peer address can not access");
 		coap_client_send_provisioning_request();
 		return;
 	}
@@ -438,7 +422,6 @@ static void do_report_status_request(struct k_work *item)
 	payload = cJSON_PrintUnformatted(root_obj);
 
 	LOG_INF("Send 'status' request to: %s, payload: %s", unique_local_addr_str, payload);
-	is_need_to_update_server_ipaddr = true;
 	coap_send_request(COAP_METHOD_PUT, (const struct sockaddr *)&unique_local_addr,
 			  status_option, payload, strlen(payload) + 1, on_send_status_reply);
 
