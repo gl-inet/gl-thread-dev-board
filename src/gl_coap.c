@@ -357,8 +357,6 @@ static void send_provisioning_request(struct k_work *item)
 		poll_period_response_set();
 	}
 
-	unique_local_addr.sin6_addr.s6_addr16[0] = 0;
-
 	LOG_INF("Send 'provisioning' request");
 	coap_send_request(COAP_METHOD_GET, (const struct sockaddr *)&multicast_local_addr,
 			  provisioning_option, NULL, 0u, on_provisioning_reply);
@@ -501,6 +499,7 @@ static void on_thread_state_changed(uint32_t flags, void *context)
 		case OT_DEVICE_ROLE_DETACHED:
 			k_work_submit(&on_disconnect_work);
 			is_connected = false;
+			unique_local_addr.sin6_addr.s6_addr16[0] = 0;
 		default:
 			break;
 		}
