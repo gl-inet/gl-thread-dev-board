@@ -3,8 +3,8 @@
   - [Pinout](#pinout)
   - [SW Development Environment](#sw-development-environment)
     - [Requriements](#Requriements)
-    - [Install dependencies](#Install dependencies)
-    - [Download gl-nrf-sdk](#Download gl-nrf-sdk)
+    - [Install dependencies](#install-dependencies)
+    - [Download gl-nrf-sdk](#download-gl-nrf-sdk)
     - [Buiding gl-dev-board-over-thread demo](#buiding-gl-dev-board-over-thread-demo)
       - [buiding](#buiding)
       - [Flashing](#flashing)
@@ -195,7 +195,7 @@ Split status: N/A (0)
 
 ####    test
 
-Reference https://docs.gl-inet.com/en/4/user_guide/gl-s200/gl_dev_board/ add TDB(GL Thread DEV Board) to the thread network.After successfully joining the network, you can view the collected data such as temperature reported by the OTB to gl-s200 on the web page, or run commands in the background of gl-s200 to control the OTB.
+Reference https://docs.gl-inet.com/iot/en/iot_dev_board/ add TDB(GL Thread DEV Board) to the thread network. After successfully joining the network, you can view the collected data such as temperature reported by the OTB to gl-s200 on the web page, or run commands in the background of gl-s200 to control the OTB.
 
 ##### Set LED switch
 
