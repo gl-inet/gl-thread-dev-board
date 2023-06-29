@@ -2,21 +2,22 @@
   - [HW Info](#hw-info)
   - [Pinout](#pinout)
   - [SW Development Environment](#sw-development-environment)
-    - [1.Download gl-nrf-sdk (branch:v2.0-glinet)](#1download-gl-nrf-sdk-branchv20-glinet)
-    - [2.Update download dependency](#2update-download-dependency)
-    - [3.Buiding gl-dev-board-over-thread demo](#3buiding-gl-dev-board-over-thread-demo)
-      - [(1)buiding](#1buiding)
-      - [(2)Flashing](#2flashing)
-      - [(3)test](#3test)
+    - [Requriements](#Requriements)
+    - [Install dependencies](#Install dependencies)
+    - [Download gl-nrf-sdk](#Download gl-nrf-sdk)
+    - [Buiding gl-dev-board-over-thread demo](#buiding-gl-dev-board-over-thread-demo)
+      - [buiding](#buiding)
+      - [Flashing](#flashing)
+      - [test](#test)
         - [Set LED switch](#set-led-switch)
         - [Set LED color](#set-led-color)
         - [Set the GPIO level](#set-the-gpio-level)
         - [Read the GPIO status](#read-the-gpio-status)
         - [Read LED status](#read-led-status)
-    - [4.Buiding  other demo](#4buiding--other-demo)
-      - [(1)buiding](#1buiding-1)
-      - [(2)Flashing](#2flashing-1)
-      - [(3)test](#3test-1)
+    - [Buiding  other demo](#buiding--other-demo)
+      - [buiding](#buiding-1)
+      - [Flashing](#2flashing-1)
+      - [test](#test-1)
 
 
 # GL Thread Dev Board
@@ -62,43 +63,139 @@ TBD currently implements the following functions:
 
 <img src="./docs/img/gl_thread_dev_board_pinout.jpg" alt="TDB_pinout" style="zoom: 25%;" />
 
-## SW Development Environment
+## Getting Started Guide
 
-### 1.Download gl-nrf-sdk (branch:v2.0-glinet) 
+### Requriements
+
+- Ubuntu 20.04 LTS or later
+
+### Install dependencies
+
+Please refer to [Developing with Zephyr](https://docs.zephyrproject.org/latest/develop/getting_started/index.html#install-dependencies) for environment setup.
+
+### Download gl-nrf-sdk
+
+**Support versions**
+
+- [v2.2.0-glinet](https://github.com/gl-inet/gl-nrf-sdk/tree/v2.2.0-glinet) 
 
 ```
 west init -m https://github.com/gl-inet/gl-nrf-sdk --mr v2.2.0-glinet gl-nrf-sdk
-```
-
-### 2.Update download dependency
-
-```
 cd gl-nrf-sdk/
 west update
 ```
 
-### 3.Buiding gl-dev-board-over-thread demo 
+### Buiding gl-dev-board-over-thread demo 
 
-​	gl-dev-board-over-thread demo is used as an example.
+gl-dev-board-over-thread demo is used as an example.
 
-#### (1)buiding
+#### buiding
 
 ```
 cd glinet/gl-dev-board-over-thread
 west build -b gl_nrf52840_dev_board 
 ```
 
-####    (2)Flashing
+####    Flashing
 
-​	GL Thread DEV Board is connected to ubuntu by J-LINK burner, and flashing the firmware to GL Thread DEV Board.
+- **Using an external [debug probe](https://docs.zephyrproject.org/latest/develop/flash_debug/probes.html#debug-probes)** 
+
+Please power on the GL Thread DEV Board. Refer to the picture below, connect SWDCLK, SWDIO and GND of the GL Thread DEV Board to the same pin of J-LINK. Then connect J-LINK to ubuntu, and use the west command to flash the firmware to GL Thread DEV Board.
+
+![J-LINK to GLDEVBOARD.drawio](docs\img\J-LINK connection.png)
 
 ```
 west flash --erase
 ```
 
-####    (3)test
+- **DFU over Serial**
 
-​	Reference https://docs.gl-inet.com/en/4/user_guide/gl-s200/gl_dev_board/ add TDB(GL Thread DEV Board) to the thread network.After successfully joining the network, you can view the collected data such as temperature reported by the OTB to gl-s200 on the web page, or run commands in the background of gl-s200 to control the OTB.
+The GL Thread Dev Board is built-in with MCUboot bootloader. Please refer to [UART_DFU](uart_dfu/README.md).
+
+- **DFU over IP**
+
+The [GL.iNET S200](https://www.gl-inet.com/products/gl-s200/) built-in with mcumgr. After gl-dev-board-over-thread demo is connected to S200, you can refer to the following command to upgrade.
+
+```
+root@GL-S200:~# mcumgr --conntype udp --connstring=[fd71:12b6:e2d0:5814:2ae8:1016:db22:4944]:1337 image list
+Images:
+ image=0 slot=0
+    version: 1.1.10
+    bootable: true
+    flags: active confirmed
+    hash: 3ea9079ccfad7138d86c549a010463203c64915e711e38c45d1393569304f0f9
+Split status: N/A (0)
+
+# Upload the image
+root@GL-S200:~# mcumgr --conntype udp --connstring=[fd71:12b6:e2d0:5814:2ae8:1016:db22:4944]:1337 image upload /tmp/MTD.bin 
+ 22.00 KiB / 379.04 KiB [=======>-------------------------]   5.80% 4.49 KiB/s 01m16s
+ 
+root@GL-S200:~# mcumgr --conntype udp --connstring=[fd71:12b6:e2d0:5814:2ae8:1016:db22:4944]:1337 image list
+Images:
+ image=0 slot=0
+    version: 1.1.10
+    bootable: true
+    flags: active confirmed
+    hash: 3ea9079ccfad7138d86c549a010463203c64915e711e38c45d1393569304f0f9
+ image=0 slot=1
+    version: 1.1.11
+    bootable: true
+    flags: 
+    hash: 93b3858e4630bc2daccfeeb80fc7b359da50f1cf3ffedbdc2c886f0cf211542f
+Split status: N/A (0)
+
+# Set the image for next boot
+root@GL-S200:~# mcumgr --conntype udp --connstring=[fd71:12b6:e2d0:5814:2ae8:1016:db22:4944]:1337 image confirm 93b3858e4630bc2daccfeeb80fc7b359da50f1cf3ffedbdc2c886f0cf211542f
+Images:
+ image=0 slot=0
+    version: 1.1.10
+    bootable: true
+    flags: active confirmed
+    hash: 3ea9079ccfad7138d86c549a010463203c64915e711e38c45d1393569304f0f9
+ image=0 slot=1
+    version: 1.1.11
+    bootable: true
+    flags: pending permanent
+    hash: 93b3858e4630bc2daccfeeb80fc7b359da50f1cf3ffedbdc2c886f0cf211542f
+Split status: N/A (0)
+
+# Boot
+root@GL-S200:~# mcumgr --conntype udp --connstring=[fd71:12b6:e2d0:5814:2ae8:1016:db22:4944]:1337 reset
+Done
+
+root@GL-S200:~# mcumgr --conntype udp --connstring=[fd71:12b6:e2d0:5814:2ae8:1016:db22:4944]:1337 image list
+Images:
+ image=0 slot=0
+    version: 1.1.11
+    bootable: true
+    flags: active confirmed
+    hash: 93b3858e4630bc2daccfeeb80fc7b359da50f1cf3ffedbdc2c886f0cf211542f
+ image=0 slot=1
+    version: 1.1.10
+    bootable: true
+    flags: 
+    hash: 3ea9079ccfad7138d86c549a010463203c64915e711e38c45d1393569304f0f9
+Split status: N/A (0)
+```
+
+You can erase unuse image slot by command,
+
+```
+root@GL-S200:~# mcumgr -t 20 --conntype udp --connstring=[fd71:12b6:e2d0:5814:2ae8:1016:db22:4944]:1337 image erase
+Done
+root@GL-S200:~# mcumgr --conntype udp --connstring=[fd71:12b6:e2d0:5814:2ae8:1016:db22:4944]:1337 image list
+Images:
+ image=0 slot=0
+    version: 1.1.11
+    bootable: true
+    flags: active confirmed
+    hash: 93b3858e4630bc2daccfeeb80fc7b359da50f1cf3ffedbdc2c886f0cf211542f
+Split status: N/A (0)
+```
+
+####    test
+
+Reference https://docs.gl-inet.com/en/4/user_guide/gl-s200/gl_dev_board/ add TDB(GL Thread DEV Board) to the thread network.After successfully joining the network, you can view the collected data such as temperature reported by the OTB to gl-s200 on the web page, or run commands in the background of gl-s200 to control the OTB.
 
 ##### Set LED switch
 
@@ -165,20 +262,20 @@ root@GL-S200:~# coap_cli -N -e "{\"cmd\":\"get_led_status\"}" -m put coap://[fd1
 {"led_strip_status":[{"obj":"led_left","on_off":0,"r":0,"g":0,"b":0},{"obj":"led_left","on_off":0,"r":0,"g":0,"b":0}],"err_code":0}
 ```
 
-### 4.Buiding  other demo 
+### Buiding other demo 
 
-​	cli demo is used as an example.
+cli demo is used as an example.
 
-#### (1)buiding
+#### buiding
 
-​	Enter cli demo directory and building
+Enter cli demo directory and building
 
 ```
 cd gl-nrf-sdk/nrf/samples/openthread/cli
 west build -b gl_nrf52840_dev_board
 ```
 
-​	The following print appears if the compilation is successful
+The following print appears if the compilation is successful
 
 ```
 [664/672] Linking CXX executable zephyr/zephyr.elf
@@ -196,9 +293,9 @@ sign the payload
 
 ```
 
-####   (2)Flashing	
+####   Flashing	
 
-​	GL Thread DEV Board is connected to ubuntu by J-LINK burner, and flashing the firmware to GL Thread DEV Board.
+GL Thread DEV Board is connected to ubuntu by J-LINK burner, and flashing the firmware to GL Thread DEV Board.
 
 ```
 west flash --erase
@@ -215,9 +312,9 @@ Applying pin reset.
 -- runners.nrfjprog: Board with serial number 59768885 flashed successfully.
 ```
 
-####    (3)test
+####    test
 
-​	Enter cli command in GL development board terminal to test.
+Enter cli command in GL development board terminal to test.
 
 ```
 uart:~$ ot channel 11
@@ -247,5 +344,7 @@ uart:~$ ot dataset active -x
 Done
 ```
 
-​	
+
+
+
 
