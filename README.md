@@ -102,7 +102,7 @@ west build -b gl_nrf52840_dev_board
 
 Please power on the GL Thread DEV Board. Refer to the picture below, connect SWDCLK, SWDIO and GND of the GL Thread DEV Board to the same pin of J-LINK. Then connect J-LINK to ubuntu, and use the west command to flash the firmware to GL Thread DEV Board.
 
-![J-LINK to GLDEVBOARD.drawio](docs\img\J-LINK connection.png)
+![J-LINK to GLDEVBOARD.drawio](docs/img/j-link-connection.png)
 
 ```
 west flash --erase
