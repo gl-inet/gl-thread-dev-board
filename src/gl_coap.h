@@ -31,6 +31,8 @@
 #define STATUS_URI_PATH "status"
 #define TRIGGER_REPO_URI_PATH "trigger"
 
+#define TESTING_LIGHT_URI_PATH "testing_light"
+
 typedef enum{
 	INFRARED_SENSOR_TRIGGER = 1,
 	QDEC_BUTTON_TRIGGER		= 2,
@@ -81,6 +83,8 @@ void coap_client_send_status(void);
 typedef int (*cmd_request_callback_t)(const char *json_str, cJSON* resp_obj);
 
 void send_trigger_event_request(trigger_event_type_e event, char* obj, void* value);
+
+void start_testing_mode(void);
 
 
 #endif /* _GL_COAP_CLIENT_H_ */

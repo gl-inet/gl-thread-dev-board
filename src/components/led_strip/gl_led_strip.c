@@ -132,7 +132,23 @@ static int led_update_rgb(void)
 	return 0;
 }
 
+int update_led_strip_rgb_to_next(void)
+{
+	static int count = 0;
 
+	for(int i = 0; i < STRIP_NUM_PIXELS; i++)
+	{
+		memcpy(&pixels[i], &def_colors[count], sizeof(struct led_rgb));
+	}
+
+	count++;
+	if(count >= ARRAY_SIZE(def_colors))
+	{
+		count = 0;
+	}
+
+	return led_update_rgb();
+}
 
 int update_led_strip_rgb(uint16_t node, struct led_rgb* color)
 {

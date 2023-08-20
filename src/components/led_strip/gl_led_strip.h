@@ -35,6 +35,8 @@
 
 int gl_led_strip_init(void);
 
+int update_led_strip_rgb_to_next(void);
+
 int update_led_strip_rgb(uint16_t node, struct led_rgb* color);
 
 int on_off_led_strip(uint16_t node, int on_off);

@@ -23,6 +23,13 @@
 
 #include <zephyr/net/openthread.h>
 #include <openthread/thread.h>
+#include <openthread/joiner.h>
+#include <platform-zephyr.h>
+#include <zephyr/init.h>
+#include <zephyr/sys/util.h>
+#include <zephyr/sys/__assert.h>
+#include <version.h>
+
 
 #include "gl_ot_api.h"
 
@@ -195,4 +202,34 @@ int ot_get_txpower(void)
 	otPlatRadioGetTransmitPower(instance, &power);
 
 	return power;
+}
+
+static void ot_joiner_start_handler(otError error, void *context)
+{
+	struct openthread_context *ot_context = context;
+
+	switch (error) {
+	case OT_ERROR_NONE:
+		LOG_INF("Join success");
+		otThreadSetEnabled(ot_context->instance, true);
+		break;
+	default:
+		LOG_INF("Join failed [%d]", error);
+		break;
+	}
+}
+
+void start_joiner(void)
+{
+	struct openthread_context *context = openthread_get_default_context();
+
+	openthread_api_mutex_lock(context);
+
+	otJoinerStart(context->instance, CONFIG_OPENTHREAD_JOINER_PSKD, NULL,
+						"Zephyr", CONFIG_OPENTHREAD_PLATFORM_INFO,
+						KERNEL_VERSION_STRING, NULL,
+						&ot_joiner_start_handler, context);
+
+	openthread_api_mutex_unlock(context);
+
 }

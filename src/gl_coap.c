@@ -95,6 +95,8 @@ static const char *const provisioning_option[] = { PROVISIONING_URI_PATH, NULL }
 static const char *const status_option[] = { STATUS_URI_PATH, NULL };
 static const char *const trigger_repo_option[] = { TRIGGER_REPO_URI_PATH, NULL };
 
+static const char *const testing_light_option[] = { TESTING_LIGHT_URI_PATH, NULL };
+
 struct server_context {
 	struct otInstance *ot;
 	cmd_request_callback_t cmd_request;
@@ -108,6 +110,14 @@ static struct server_context srv_context = {
 /**@brief Definition of CoAP resources for light. */
 static otCoapResource cmd_resource = {
 	.mUriPath = "cmd",
+	.mHandler = NULL,
+	.mContext = NULL,
+	.mNext = NULL,
+};
+
+/**@brief Definition of CoAP resources for testing mode. */
+static otCoapResource testing_light_resource = {
+	.mUriPath = TESTING_LIGHT_URI_PATH,
 	.mHandler = NULL,
 	.mContext = NULL,
 	.mNext = NULL,
@@ -130,6 +140,112 @@ static struct sockaddr_in6 unique_local_addr = {
 	.sin6_addr.s6_addr = {0, },
 	.sin6_scope_id = 0U
 };
+
+
+/********************************************************************************************
+ * 									Testing Mode
+********************************************************************************************/
+static bool testing_mode_flag = false;
+void start_testing_mode(void)
+{
+	if(is_connected)
+	{
+		if(!testing_mode_flag)
+		{
+			testing_mode_flag = true;
+			k_timer_stop(&report_timer);
+		}
+	}else{
+		LOG_ERR("No network connected! Starting testing mode failed!");
+		return;
+	}
+}
+
+static bool is_testing_mode(void)
+{
+	return testing_mode_flag;
+}
+
+static void testing_light_request_handler(void *context, otMessage *message,
+				const otMessageInfo *message_info)
+{
+	if(!is_testing_mode())
+	{
+		return;
+	}
+
+	char buf[150];
+	int length;
+
+	ARG_UNUSED(context);
+
+	if (otCoapMessageGetType(message) != OT_COAP_TYPE_NON_CONFIRMABLE) {
+		LOG_ERR("Testing Light handler - Unexpected type of message");
+		return;
+	}
+
+	if (otCoapMessageGetCode(message) != OT_COAP_CODE_PUT) {
+		LOG_ERR("Testing Light handler - Unexpected CoAP code");
+		return;
+	}
+	length = otMessageRead(message, otMessageGetOffset(message), buf, sizeof(buf) - 1);
+	buf[length] = '\0';
+
+	LOG_INF("Received Testing Light request: %s", buf);
+/*
+	otError error;
+	otMessageInfo msg_info;
+	msg_info = *message_info;
+
+	char* resp;
+	int resp_len;
+
+	cJSON *resp_obj = cJSON_CreateObject();
+	ret = srv_context.cmd_request(buf, resp_obj);
+
+	resp = cJSON_PrintUnformatted(resp_obj);
+
+	error = coap_send_utils(message, &msg_info, resp, strlen(resp));
+	if (error != OT_ERROR_NONE) {
+		LOG_INF("coap_send_utils failed. error = %d", error);
+	}
+
+	free(resp);
+	cJSON_Delete(resp_obj);
+*/
+	cJSON *root_obj = NULL;
+	root_obj = cJSON_Parse(buf);
+	if (root_obj == NULL) {
+		LOG_ERR("cJSON Parse failure");
+		return;
+	}
+
+	cJSON* event_obj = cJSON_GetObjectItem(root_obj, "event");
+
+	char* trigger_type = gl_json_get_string(event_obj, "trigger_type");
+	if(trigger_type == NULL)
+	{
+		LOG_ERR("get trigger_type failure");
+		return;
+	}
+
+	if(0 == strcmp(trigger_type, "qdec_button"))
+	{
+		on_off_led_strip(ALL_LED_NODE, LED_TOGGLE);
+	}else if(0 == strcmp(trigger_type, "qdec_rotate")) {
+		// if(0 > gl_json_get_int(event_obj, "value"))
+		// {
+			
+		// }else{
+
+		// }
+		update_led_strip_rgb_to_next();
+	}
+
+	return;
+}
+
+/********************************************************************************************/
 #if 0
 static bool check_cmd_valid(const char *cmd)
 {
@@ -293,11 +409,16 @@ void send_trigger_event_request(trigger_event_type_e event, char* obj, void* val
 		LOG_WRN("device does not connect!");
 		return;
 	}
-	if (unique_local_addr.sin6_addr.s6_addr16[0] == 0) {
-		LOG_WRN("Peer address not set");
-		coap_client_send_provisioning_request();
-		return;
+
+	if(!is_testing_mode())
+	{
+		if (unique_local_addr.sin6_addr.s6_addr16[0] == 0) {
+			LOG_WRN("Peer address not set");
+			coap_client_send_provisioning_request();
+			return;
+		}
 	}
+
 	
 	cJSON *root_obj = cJSON_CreateObject();
 	gl_json_add_str(root_obj, "eui64", ot_get_eui64());
@@ -308,15 +429,16 @@ void send_trigger_event_request(trigger_event_type_e event, char* obj, void* val
 		{
 			gl_json_add_str(event_obj, "trigger_type", "infrared_sensor");
 			gl_json_add_str(event_obj, "obj", obj);
-			int* p = (int*)value;
-			gl_json_add_boolean(event_obj, "value", *p);
+			// int* p = (int*)value;
+			// gl_json_add_boolean(event_obj, "value", *p);
+			goto end;
 		} break;
 		case QDEC_BUTTON_TRIGGER:
 		{
 			gl_json_add_str(event_obj, "trigger_type", "qdec_button");
 			gl_json_add_str(event_obj, "obj", obj);
-			int* p = (int*)value;
-			gl_json_add_boolean(event_obj, "value", *p);
+			// int* p = (int*)value;
+			// gl_json_add_boolean(event_obj, "value", *p);
 		} break;
 		case QDEC_ROTATE_TRIGGER:
 		{
@@ -335,14 +457,23 @@ void send_trigger_event_request(trigger_event_type_e event, char* obj, void* val
 	gl_json_add_obj(root_obj, "event", event_obj);
 
 	char* payload = cJSON_PrintUnformatted(root_obj);
-	LOG_INF("Send trigger ev: %s", payload);
-	coap_send_request(COAP_METHOD_PUT, (const struct sockaddr *)&unique_local_addr,
-			  trigger_repo_option, payload, strlen(payload) + 1, on_send_trigger_reply);
+
+	if(!is_testing_mode())
+	{
+		LOG_INF("Send trigger ev: %s", payload);
+		coap_send_request(COAP_METHOD_PUT, (const struct sockaddr *)&unique_local_addr,
+				trigger_repo_option, payload, strlen(payload) + 1, on_send_trigger_reply);
+		light_onoff();	
+	}else {
+		LOG_INF("Send trigger ev to testing light resource");
+		coap_send_request(COAP_METHOD_PUT, (const struct sockaddr *)&multicast_local_addr,
+				testing_light_option, payload, strlen(payload) + 1, NULL);
+	}
 
 	free(payload); //cJSON_FreeString
-	cJSON_Delete(root_obj);
 
-	light_onoff();
+end:
+	cJSON_Delete(root_obj);
 
 	return;
 }
@@ -509,12 +640,24 @@ static void on_thread_state_changed(uint32_t flags, void *context)
 		int state = otJoinerGetState(ot_context->instance);
 		switch (state) {
 		case OT_JOINER_STATE_IDLE:
-			led_off(LED2);
-			if (!is_joined) {
-				LOG_WRN("Join failed");
-				is_joined = false;
+		{
+			static int try_join_time = 0;
+			
+			try_join_time++;
+			if(try_join_time > 1000)
+			{	
+				try_join_time = 0;
+				led_off(LED2);
+				if (!is_joined) {
+					LOG_WRN("Join failed");
+					is_joined = false;
+				}
+			}else{
+				LOG_INF("Start joiner again... %d", try_join_time);
+				start_joiner();
 			}
 			break;
+		}
 		case OT_JOINER_STATE_JOINED:
 			is_joined = true;
 			break;
@@ -867,6 +1010,9 @@ void coap_client_utils_init(ot_connection_cb_t on_connect, ot_disconnection_cb_t
 	cmd_resource.mContext = srv_context.ot;
 	cmd_resource.mHandler = cmd_request_handler;
 
+	testing_light_resource.mContext = srv_context.ot;
+	testing_light_resource.mHandler = testing_light_request_handler;
+
 	srv_context.cmd_request = cmd_request;
 	srv_context.ot = context->instance;
 	if (!srv_context.ot) {
@@ -875,6 +1021,7 @@ void coap_client_utils_init(ot_connection_cb_t on_connect, ot_disconnection_cb_t
 
 	otCoapSetDefaultHandler(srv_context.ot, coap_default_handler, NULL);
 	otCoapAddResource(srv_context.ot, &cmd_resource);
+	otCoapAddResource(srv_context.ot, &testing_light_resource);
 
 	if (otCoapStart(srv_context.ot, COAP_PORT) != OT_ERROR_NONE) {
 		LOG_ERR("Failed to start OT CoAP.");
@@ -888,6 +1035,10 @@ void coap_client_utils_init(ot_connection_cb_t on_connect, ot_disconnection_cb_t
 
 void coap_client_send_provisioning_request(void)
 {
+	if(is_testing_mode())
+	{
+		return;
+	}
 	submit_work_if_connected(&provisioning_work);
 }
 
