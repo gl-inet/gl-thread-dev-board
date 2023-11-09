@@ -29,8 +29,18 @@ jobs:
           export GNUARMEMB_TOOLCHAIN_PATH=$PWD/gcc-arm-none-eabi-9-2019-q4-major
 
           cd glinet/gl-dev-board-over-thread
-          west build -b gl_nrf52840_dev_board
           VERSION=$(cat prj.conf|grep CONFIG_SW_VERSION|awk -F '"' '{print $2}')
+          echo "Build FTD"
+          sed -i '/CONFIG_OPENTHREAD_FTD=n/c\CONFIG_OPENTHREAD_FTD=y' prj.conf
+          sed -i '/CONFIG_OPENTHREAD_MTD=y/c\CONFIG_OPENTHREAD_MTD=n' prj.conf
+          west build -b gl_nrf52840_dev_board
+          cp build/zephyr/app_update.bin ../../../GL-Dev-Board-Thread-FTD-OTA-v$VERSION.bin
+          cp build/zephyr/merged.hex ../../../GL-Dev-Board-Thread-FTD-JLINK-UPGRADE-v$VERSION.hex
+
+          echo "Build MTD"
+          sed -i '/CONFIG_OPENTHREAD_FTD=y/c\CONFIG_OPENTHREAD_FTD=n' prj.conf
+          sed -i '/CONFIG_OPENTHREAD_MTD=n/c\CONFIG_OPENTHREAD_MTD=y' prj.conf
+          west build -b gl_nrf52840_dev_board
           cp build/zephyr/app_update.bin ../../../GL-Dev-Board-Thread-MTD-OTA-v$VERSION.bin
           cp build/zephyr/merged.hex ../../../GL-Dev-Board-Thread-MTD-JLINK-UPGRADE-v$VERSION.hex
 
