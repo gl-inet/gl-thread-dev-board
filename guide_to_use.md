@@ -32,7 +32,7 @@
 
 - Infrared sensor is set as button3, when it detects someone nearby, it will be triggered and send a infrared sensor trigger event request to S200.  The action after trigger depends on "Automations" you set, such as turn on the RGB LED on the daughter board.
 
-  ![image-20231109105732970](Instruction_gl_dev_board_demo.assets/image-20231109105732970.png)
+  ![image-20231109105732970](./docs/guide_to_use.assets/automations_page.png)
 
 
 
