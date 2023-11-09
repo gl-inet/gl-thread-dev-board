@@ -431,7 +431,6 @@ void send_trigger_event_request(trigger_event_type_e event, char* obj, void* val
 			gl_json_add_str(event_obj, "obj", obj);
 			// int* p = (int*)value;
 			// gl_json_add_boolean(event_obj, "value", *p);
-			goto end;
 		} break;
 		case QDEC_BUTTON_TRIGGER:
 		{
