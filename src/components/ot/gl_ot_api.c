@@ -117,6 +117,17 @@ char *ot_get_slaac_addr(void)
 	return address;
 }
 
+char *ot_get_device_type(void)
+{	
+	static char device_type[] = 
+#ifdef CONFIG_OPENTHREAD_MTD
+		"MTD" ;
+#else
+		"FTD" ;
+#endif
+	return device_type;
+}
+
 void ot_factoryreset(void)
 {
 	struct openthread_context *context = openthread_get_default_context();

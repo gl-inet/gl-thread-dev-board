@@ -542,6 +542,7 @@ static void do_report_status_request(struct k_work *item)
 	gl_json_add_number(root_obj, "rloc16", ot_get_rloc16());
 	gl_json_add_str(root_obj, "sw_ver", CONFIG_SW_VERSION);
 	gl_json_add_number(root_obj, "report_intervel", CONFIG_DEFAULT_REPORT_REPEAT/1000);
+	gl_json_add_str(root_obj, "dev_fw_type", ot_get_device_type());
 	cJSON *data_obj = cJSON_CreateObject();
 	gl_json_add_number(data_obj, "temperature", gl_sensor_get_temp());
 	gl_json_add_number(data_obj, "humidity", gl_sensor_get_humi());

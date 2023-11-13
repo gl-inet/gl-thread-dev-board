@@ -33,6 +33,7 @@ const char *ot_get_version(void);
 int ot_get_rloc16(void);
 char *ot_get_mleid(void);
 char *ot_get_slaac_addr(void);
+char *ot_get_device_type(void);
 void ot_factoryreset(void);
 int ot_start(void);
 void ot_print_network_info(void);
