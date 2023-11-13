@@ -64,6 +64,7 @@
 #include "gl_sensor.h"
 #include "gl_button_logic.h"
 #include "gl_types.h"
+#include "gl_battery.h"
 
 LOG_MODULE_REGISTER(main, CONFIG_GL_THREAD_DEV_BOARD_LOG_LEVEL);
 
@@ -197,6 +198,11 @@ void main(void)
 	ret = dk_buttons_init(on_button_changed);
 	if (ret) {
 		LOG_ERR("Cannot init buttons (error: %d)", ret);
+	}
+
+	ret = battery_measure_enable(true);
+	if (ret) {
+		LOG_ERR("Could not initialize battery measurement, err code: %d", ret);
 	}
 
 #ifdef CONFIG_BOOTLOADER_MCUBOOT

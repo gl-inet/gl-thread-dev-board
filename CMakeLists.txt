@@ -21,6 +21,7 @@ aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/src/components/smp app_sources)
 aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/src/components/srp app_sources)
 aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/src/components/coap app_sources)
 aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/src/components/gpio app_sources)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/src/components/battery app_sources)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/components/ot)
@@ -33,6 +34,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/components/smp)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/components/srp)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/components/coap)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/components/gpio)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/components/battery)
 
 
 # NORDIC SDK APP START
