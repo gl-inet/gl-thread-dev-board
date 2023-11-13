@@ -50,9 +50,9 @@ struct battery_level_point {
 unsigned int battery_level_pptt(unsigned int batt_mV,
 				const struct battery_level_point *curve);
 
-/** GL API to get the voltage of battery
+/** GL API to get the battery level
  * 
- * @return the value of supply voltage in mV
+ * @return the value of battery percentage
  */
 int gl_battery_get_level();
 
