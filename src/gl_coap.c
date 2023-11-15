@@ -981,12 +981,42 @@ static void on_report_timer_stop(struct k_timer *timer_id)
 	LOG_INF("%d,%s", __LINE__, __FUNCTION__);
 }
 
+void ot_link_mode_init()
+{
+	struct openthread_context *context = openthread_get_default_context();
+	otError error;
+	__ASSERT_NO_MSG(context != NULL);
+
+	openthread_api_mutex_lock(context);
+	otLinkModeConfig mode = {
+#ifdef	CONFIG_OPENTHREAD_MTD
+		.mRxOnWhenIdle = true,
+		.mDeviceType = false,
+		.mNetworkData = false
+#else
+		.mRxOnWhenIdle = true,
+		.mDeviceType = true,
+		.mNetworkData = true
+#endif
+	};
+	error = otThreadSetLinkMode(context->instance, mode);
+	openthread_api_mutex_unlock(context);
+	
+	if (error != OT_ERROR_NONE) {
+		LOG_ERR("Failed to set link mode, error:%d",error);
+	} else {
+		// on_mtd_mode_toggle(mode.mRxOnWhenIdle);
+		LOG_INF("Set %s link mode, error:%d", IS_ENABLED(CONFIG_OPENTHREAD_MTD) ? "MTD" : "FTD", error);
+	}
+}
+
 void coap_client_utils_init(ot_connection_cb_t on_connect, ot_disconnection_cb_t on_disconnect,
 			    mtd_mode_toggle_cb_t on_toggle)
 {
 	on_mtd_mode_toggle = on_toggle;
 
 	coap_init(AF_INET6, NULL);
+	ot_link_mode_init();
 
 	k_timer_init(&report_timer, on_report_timer_expiry, on_report_timer_stop);
 	k_work_init(&factory_reset_work, do_factory_reset);
@@ -998,8 +1028,9 @@ void coap_client_utils_init(ot_connection_cb_t on_connect, ot_disconnection_cb_t
 	k_work_init(&report_status_work, do_report_status_request);
 
 	openthread_set_state_changed_cb(on_thread_state_changed);
-
+	
 	struct openthread_context *context = openthread_get_default_context();
+
 	if (otDatasetIsCommissioned(context->instance)) {
 		openthread_start(context);
 	}
