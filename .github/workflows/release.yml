@@ -29,20 +29,22 @@ jobs:
           export GNUARMEMB_TOOLCHAIN_PATH=$PWD/gcc-arm-none-eabi-9-2019-q4-major
 
           cd glinet/gl-dev-board-over-thread
-          VERSION=$(cat prj.conf|grep CONFIG_SW_VERSION|awk -F '"' '{print $2}')
+          echo "Build $GITHUB_REF_NAME"
+          sed -i "/CONFIG_MCUBOOT_IMAGE_VERSION/c\CONFIG_MCUBOOT_IMAGE_VERSION=\"${GITHUB_REF_NAME#*v}\"" prj.conf
+          sed -i "/CONFIG_SW_VERSION/c\CONFIG_SW_VERSION=\"${GITHUB_REF_NAME#*v}\"" prj.conf
           echo "Build FTD"
           sed -i '/CONFIG_OPENTHREAD_FTD=n/c\CONFIG_OPENTHREAD_FTD=y' prj.conf
           sed -i '/CONFIG_OPENTHREAD_MTD=y/c\CONFIG_OPENTHREAD_MTD=n' prj.conf
           west build -b gl_nrf52840_dev_board
-          cp build/zephyr/app_update.bin ../../../GL-Dev-Board-Thread-FTD-OTA-v$VERSION.bin
-          cp build/zephyr/merged.hex ../../../GL-Dev-Board-Thread-FTD-JLINK-UPGRADE-v$VERSION.hex
+          cp build/zephyr/app_update.bin ../../../GL-Dev-Board-Thread-FTD-OTA-$GITHUB_REF_NAME.bin
+          cp build/zephyr/merged.hex ../../../GL-Dev-Board-Thread-FTD-JLINK-UPGRADE-$GITHUB_REF_NAME.hex
 
           echo "Build MTD"
           sed -i '/CONFIG_OPENTHREAD_FTD=y/c\CONFIG_OPENTHREAD_FTD=n' prj.conf
           sed -i '/CONFIG_OPENTHREAD_MTD=n/c\CONFIG_OPENTHREAD_MTD=y' prj.conf
           west build -b gl_nrf52840_dev_board
-          cp build/zephyr/app_update.bin ../../../GL-Dev-Board-Thread-MTD-OTA-v$VERSION.bin
-          cp build/zephyr/merged.hex ../../../GL-Dev-Board-Thread-MTD-JLINK-UPGRADE-v$VERSION.hex
+          cp build/zephyr/app_update.bin ../../../GL-Dev-Board-Thread-MTD-OTA-$GITHUB_REF_NAME.bin
+          cp build/zephyr/merged.hex ../../../GL-Dev-Board-Thread-MTD-JLINK-UPGRADE-$GITHUB_REF_NAME.hex
 
       - uses: marvinpinto/action-automatic-releases@latest
         with:
