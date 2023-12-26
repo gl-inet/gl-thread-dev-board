@@ -39,6 +39,7 @@ const struct gpio_dt_spec SW1 = GPIO_DT_SPEC_GET_OR(SW0_NODE, gpios, { 0 });
 const struct gpio_dt_spec SW2 = GPIO_DT_SPEC_GET_OR(SW1_NODE, gpios, { 0 });
 
 extern int joiner_state;
+uint32_t join_time_start;
 
 
 void on_button_changed(uint32_t button_state, uint32_t has_changed)
@@ -91,11 +92,12 @@ void on_button_changed(uint32_t button_state, uint32_t has_changed)
 	}else if (is_sw2_press && is_sw2_release) {
 		printk("Button2\n");
 		if ((sw2_time_end - sw2_time_start) < 300) { // Joining
-			LOG_INF("Joining start...");
+			join_time_start = k_uptime_get_32();
 			if (joiner_state != DEVICE_CONNECTED) {
 				if (ot_start() == 0) {
 					joiner_state = DEVICE_CONNECTING;
 					led_toggle_start(200);
+					LOG_INF("Joining start...");
 				}
 			}
 			is_sw2_press = false;

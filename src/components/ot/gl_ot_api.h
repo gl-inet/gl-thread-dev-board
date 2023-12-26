@@ -40,6 +40,7 @@ void ot_print_network_info(void);
 char *ot_get_mode(void);
 int ot_get_txpower(void);
 
-void start_joiner(void);
+otError start_joiner(void);
+void auto_commissioning_timer_init(void);
 
 #endif /* _GL_OT_API_H_ */

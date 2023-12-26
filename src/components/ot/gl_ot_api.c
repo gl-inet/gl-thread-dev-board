@@ -33,6 +33,10 @@
 
 #include "gl_ot_api.h"
 
+#define JOIN_COMMISSIONING_TIMEOUT	(1 * 60 * 1000)
+
+static struct k_timer commissioning_timer;
+
 LOG_MODULE_REGISTER(gl_ot_api, CONFIG_GL_OT_API_LOG_LEVEL);
 
 char *ot_get_eui64(void)
@@ -230,17 +234,44 @@ static void ot_joiner_start_handler(otError error, void *context)
 	}
 }
 
-void start_joiner(void)
+otError start_joiner(void)
 {
 	struct openthread_context *context = openthread_get_default_context();
 
 	openthread_api_mutex_lock(context);
 
-	otJoinerStart(context->instance, CONFIG_OPENTHREAD_JOINER_PSKD, NULL,
-						"Zephyr", CONFIG_OPENTHREAD_PLATFORM_INFO,
-						KERNEL_VERSION_STRING, NULL,
-						&ot_joiner_start_handler, context);
+	otError err = otJoinerStart(context->instance, CONFIG_OPENTHREAD_JOINER_PSKD, NULL,
+								"Zephyr", CONFIG_OPENTHREAD_PLATFORM_INFO,
+								KERNEL_VERSION_STRING, NULL,
+								&ot_joiner_start_handler, context);
 
 	openthread_api_mutex_unlock(context);
 
+	return err;
+}
+
+static void commissioning_timer_handler(struct k_timer *timer_id)
+{
+	struct openthread_context *context = openthread_get_default_context();
+	// otJoinerState nowState = otJoinerGetState(context->instance);
+	otDeviceRole now_role = otThreadGetDeviceRole(context->instance);
+
+	if(k_uptime_get_32() <= JOIN_COMMISSIONING_TIMEOUT){
+		LOG_INF("Auto commissioning...");
+		if(now_role == OT_DEVICE_ROLE_DISABLED){
+			otError err = start_joiner();
+			LOG_INF("Joining. err : %d", err);
+		}
+	}
+}
+
+void auto_commissioning_timer_init(void)
+{
+	struct openthread_context *context = openthread_get_default_context();
+
+	k_timer_init(&commissioning_timer, commissioning_timer_handler, NULL);
+	if (ot_start() == 0){
+		openthread_set_state_changed_cb(NULL);
+		k_timer_start(&commissioning_timer, K_MSEC(100), K_MSEC(3000));
+	}
 }

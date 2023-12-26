@@ -48,6 +48,7 @@ LOG_MODULE_REGISTER(gl_coap, CONFIG_GL_THREAD_DEV_BOARD_LOG_LEVEL);
 
 #define CONFIG_DEFAULT_REPORT_AFTER (1 * 60 * 1000)
 #define CONFIG_DEFAULT_REPORT_REPEAT (5 * 60 * 1000)
+#define JOIN_COMMISSIONING_TIMEOUT	(3 * 60 * 1000)
 
 struct _cmd_s {
 	int id;
@@ -61,6 +62,8 @@ struct _cmd_s {
 	{ CONFIG_CMD_SET_GPIO, "set_gpio" },
 	{ CONFIG_CMD_GET_GPIO_STATUS, "get_gpio_status" },
 	{ CONFIG_CMD_GET_LED_STATUS, "get_led_status" },
+	{ CONFIG_CMD_SET_REPORT_INTERVAL, "set_report_interval" },
+	{ CONFIG_CMD_SET_OT_MODE, "set_ot_mode"},
 };
 
 struct _obj_s {
@@ -90,6 +93,8 @@ static struct k_work factory_reset_work;
 static struct k_timer report_timer;
 
 mtd_mode_toggle_cb_t on_mtd_mode_toggle;
+extern uint32_t join_time_start;
+int report_interval_second = CONFIG_DEFAULT_REPORT_REPEAT/1000;  //millisecond to second
 
 /* Options supported by the server */
 static const char *const provisioning_option[] = { PROVISIONING_URI_PATH, NULL };
@@ -541,7 +546,7 @@ static void do_report_status_request(struct k_work *item)
 	gl_json_add_str(root_obj, "addr", ot_get_mleid());
 	gl_json_add_number(root_obj, "rloc16", ot_get_rloc16());
 	gl_json_add_str(root_obj, "sw_ver", CONFIG_SW_VERSION);
-	gl_json_add_number(root_obj, "report_intervel", CONFIG_DEFAULT_REPORT_REPEAT/1000);
+	gl_json_add_number(root_obj, "report_intervel", report_interval_second);
 	gl_json_add_str(root_obj, "dev_fw_type", ot_get_device_type());
 	cJSON *data_obj = cJSON_CreateObject();
 	gl_json_add_number(data_obj, "temperature", gl_sensor_get_temp());
@@ -655,8 +660,12 @@ static void on_thread_state_changed(uint32_t flags, void *context)
 					is_joined = false;
 				}
 			}else{
-				LOG_INF("Start joiner again... %d", try_join_time);
-				start_joiner();
+				if(k_uptime_get_32() - join_time_start <= JOIN_COMMISSIONING_TIMEOUT){
+					LOG_INF("Start joiner again... %d", try_join_time);
+					start_joiner();
+				}else{
+					led_toggle_stop();
+				}
 			}
 			break;
 		}
@@ -940,6 +949,41 @@ static int cmd_request(const char *json_str, cJSON* resp_obj)
 		}
 		cJSON_AddItemToObjectCS(resp_obj, "gpio_status", array_obj);
 	}break;
+	case CONFIG_CMD_SET_REPORT_INTERVAL: {
+		obj = gl_json_get_string(root_obj, "obj");
+		int val = gl_json_get_int(root_obj, "val");
+		report_interval_second = val;
+
+		if(0 != val){
+			k_timer_stop(&report_timer);
+			k_timer_start(&report_timer, K_MSEC(3000), K_MSEC(report_interval_second * 1000));
+		}
+	}break;
+	case CONFIG_CMD_SET_OT_MODE: {
+		obj = gl_json_get_string(root_obj, "obj");
+		char *mode_str = gl_json_get_int(root_obj, "val");
+		otLinkModeConfig mode = {
+			.mRxOnWhenIdle = strchr(mode_str, 'r') ? true : false,
+			.mDeviceType = strchr(mode_str, 'd') ? true : false,
+			.mNetworkData = strchr(mode_str, 'n') ? true : false
+		};
+		
+		struct openthread_context *context = openthread_get_default_context();
+		otError error;
+		__ASSERT_NO_MSG(context != NULL);
+
+		openthread_api_mutex_lock(context);
+		error = otThreadSetLinkMode(context->instance, mode);
+		openthread_api_mutex_unlock(context);
+		
+		if(error == OT_ERROR_NONE){
+			ret = ERROR_CODE_NONE;
+		}else if(error == OT_ERROR_INVALID_ARGS){
+			ret = ERROR_CODE_INVALID_PARAMETER;
+		}else{
+			ret = ERROR_CODE_UNKNOW;
+		}
+	}break;
 	case CONFIG_CMD_UPGRADE:
 	case CONFIG_CMD_FACTORYRESET:
 	case CONFIG_CMD_REBOOT:
@@ -1093,7 +1137,7 @@ void do_after_srp_srv_reg(void)
 	smp_start();
 #endif
 
-	k_timer_start(&report_timer, K_MSEC(3000), K_MSEC(CONFIG_DEFAULT_REPORT_REPEAT));
+	k_timer_start(&report_timer, K_MSEC(3000), K_MSEC(report_interval_second * 1000));
 
 	return;
 }

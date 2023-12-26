@@ -168,6 +168,17 @@ void print_version(void)
 	printk("OpenThread Mode: %s\n", ot_get_mode());
 }
 
+void simulation_click(uint32_t button)
+{
+	on_button_changed(0xFFFF, button);
+	on_button_changed(0xFFFF, button);
+}
+
+void auto_join_commissioning_start()
+{
+	simulation_click(DK_BTN2_MSK);
+}
+
 void main(void)
 {
 	print_version();
@@ -223,6 +234,8 @@ void main(void)
 	gl_sensor_init();
 
 	coap_client_utils_init(on_ot_connect, on_ot_disconnect, on_mtd_mode_toggle);
+	// auto_commissioning_timer_init();
+	auto_join_commissioning_start();
 
 #ifdef CONFIG_SENSOR_VALUE_AUTO_PRINT
 	debug_sensor_data();
