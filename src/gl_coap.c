@@ -954,14 +954,14 @@ static int cmd_request(const char *json_str, cJSON* resp_obj)
 		int val = gl_json_get_int(root_obj, "val");
 		report_interval_second = val;
 
-		if(0 != val){
+		if(val > 0){
 			k_timer_stop(&report_timer);
 			k_timer_start(&report_timer, K_MSEC(3000), K_MSEC(report_interval_second * 1000));
 		}
 	}break;
 	case CONFIG_CMD_SET_OT_MODE: {
 		obj = gl_json_get_string(root_obj, "obj");
-		char *mode_str = gl_json_get_int(root_obj, "val");
+		char *mode_str = gl_json_get_string(root_obj, "val");
 		otLinkModeConfig mode = {
 			.mRxOnWhenIdle = strchr(mode_str, 'r') ? true : false,
 			.mDeviceType = strchr(mode_str, 'd') ? true : false,
