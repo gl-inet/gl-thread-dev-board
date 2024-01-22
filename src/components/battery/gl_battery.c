@@ -245,7 +245,7 @@ int gl_battery_get_level(){
 	}
 
 	unsigned int batt_pptt = battery_level_pptt(batt_mV, levels);	//part per ten thousands
-	printk("Now battery level is %d.\n", batt_pptt/100);
+	// printk("Now battery level is %d.\n", batt_pptt/100);
 
 	return (batt_pptt/100);
 }

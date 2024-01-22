@@ -954,10 +954,18 @@ static int cmd_request(const char *json_str, cJSON* resp_obj)
 		int val = gl_json_get_int(root_obj, "val");
 		report_interval_second = val;
 
+		// report_interval_second = rand()%10+report_interval_second; //Try to did it random
+
 		if(val > 0){
 			k_timer_stop(&report_timer);
 			k_timer_start(&report_timer, K_MSEC(3000), K_MSEC(report_interval_second * 1000));
+			LOG_INF("Successfully set report time to %d", val);
+			ret = ERROR_CODE_NONE;
+		}else{
+			LOG_ERR("Set report time error. Invalid given args:%d", val);
+			ret = ERROR_CODE_INVALID_PARAMETER;
 		}
+		
 	}break;
 	case CONFIG_CMD_SET_OT_MODE: {
 		obj = gl_json_get_string(root_obj, "obj");
@@ -967,7 +975,7 @@ static int cmd_request(const char *json_str, cJSON* resp_obj)
 			.mDeviceType = strchr(mode_str, 'd') ? true : false,
 			.mNetworkData = strchr(mode_str, 'n') ? true : false
 		};
-		
+
 		struct openthread_context *context = openthread_get_default_context();
 		otError error;
 		__ASSERT_NO_MSG(context != NULL);
@@ -978,6 +986,7 @@ static int cmd_request(const char *json_str, cJSON* resp_obj)
 		
 		if(error == OT_ERROR_NONE){
 			ret = ERROR_CODE_NONE;
+			LOG_INF("Set ot mode:%s successfully", mode_str);
 		}else if(error == OT_ERROR_INVALID_ARGS){
 			ret = ERROR_CODE_INVALID_PARAMETER;
 		}else{
@@ -1137,6 +1146,7 @@ void do_after_srp_srv_reg(void)
 	smp_start();
 #endif
 
+	// report_interval_second = rand()%10 + report_interval_second;  //Try to did it random
 	k_timer_start(&report_timer, K_MSEC(3000), K_MSEC(report_interval_second * 1000));
 
 	return;
